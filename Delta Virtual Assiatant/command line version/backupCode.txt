@@ -1,0 +1,138 @@
+"""virtual assistant delta """
+import pyttsx3
+import datetime
+import speech_recognition as sr
+import wikipedia
+import webbrowser
+import pyjokes
+import ctypes
+from tkinter import *
+
+assistantName = "Delta Virtual Assistant"
+
+class vAssitant:
+
+     
+    def speak(self,audio):
+        self.engine = pyttsx3.init('sapi5')
+        self.voices = self.engine.getProperty('voices')
+        self.engine.setProperty('voice',self.voices[0].id)
+        self.engine.say(audio)
+        self.engine.runAndWait()
+
+    def wishme(self):
+        hour = int(datetime.datetime.now().hour)
+        if hour>=0 and hour<12:
+            self.speak("Good Morning!")
+        elif hour>=12 and hour<18:
+            self.speak("Good Afternoon!")
+        else:
+            self.speak("Good Evening!")
+        self.speak("I am delta Sir. Please tell me how may I help you")
+        
+    def takeCommand(self):
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Listening...")
+            r.pause_threshold = 1
+            audio = r.listen(source)
+        try:
+            print("Recognizing...")
+            query = r.recognize_google(audio, language='en-in')
+            print(f"User said: {query}\n")
+        
+        except Exception as e:
+            print("Say that again please...")
+            return "None"             """ Solve doubt here"""
+        return query
+
+    
+  
+class commands(vAssitant):
+    def __init__(self):
+        self.window = Tk()
+        self.window.title(assistantName)
+        self.window.geometry("500x500")
+        self.window.resizable(0,0)
+        # self.window.iconbitmap('app_icon.ico')       # solve doubt here
+        
+    
+    def Run(self):
+        
+        self.wishme()
+        while True:
+            query = self.takeCommand().lower()
+
+            if 'wikipedia' in query:
+                self.speak('Searching Wikipedia...')
+                query = query.replace("wikipedia", "")
+                results = wikipedia.summary(query, sentences=3)
+                self.speak("According to wikipedia")
+                print(results)
+                self.speak(results)
+
+            elif 'open youtube' in query:
+                webbrowser.open("youtube.com")
+            
+            elif 'open google' in query:
+                webbrowser.open("google.com")
+
+            elif 'open stackoverflow' in query:
+                webbrowser.open("stackoverflow.com")
+
+            elif 'the time' in query:
+                strTime = datetime.datetime.now().strftime("%H:%M:%S")    
+                self.speak(f"Sir, the time is {strTime}") 
+                    
+            elif 'hi delta'in query or 'hello delta' in query:
+                self.speak("Hi Buddy!!")
+            
+            elif 'what are you doing'in query:
+                self.speak("Chatting with you bud")
+            
+            elif 'creator'in query or 'who is your creator'in query:
+                self.speak("i was created by masood akhtar vaheed")
+
+            elif 'joke' in query or 'tell a joke' in query:
+                
+                self.speak(pyjokes.get_joke())
+            
+            elif 'write a memo' in query:
+                self.speak("what should i write sir")
+                note = self.takeCommand()
+                memo = open("memo.txt",'w')
+                strTime = datetime.datetime.now().strftime("%H:%M:%S")
+                memo.write(strTime)
+                memo.write(" :- ")
+                memo.write(note)
+            
+            elif 'memo' in query:
+                with open("memo.txt","r") as f:
+                    print(f.read())
+                    self.speak(f.read())
+            
+            elif 'lock windows' in query:
+                try:
+                    self.speak("locking windows")
+                    ctypes.windll.user32.LockWorkStation()
+                except Exception:
+                    print("Could not process the request")
+            
+            elif 'shutdown' in query:
+                self.speak("shutting down delta")
+                exit() 
+    
+    def main_window(self):
+        self.name_label = Label(text = assistantName,width = 300, bg = "black", fg="white", font = ("Calibri", 13))
+        self.name_label.pack()
+        self.microphone_photo = PhotoImage(file = "E:\Programming\Py\Projects\Delta Virtual Assiatant\logo.png")
+        self.microphone_button = Button(image=self.microphone_photo, command = self.Run)
+        self.microphone_button.pack(pady=10)
+        self.window.mainloop()
+
+if __name__ == "__main__":
+    c = commands()
+    c.main_window()
+    
+    
+    
